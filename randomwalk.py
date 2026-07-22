@@ -4,24 +4,30 @@ import time
 import pyautogui
 
 
-
 def random_walk_to():
 
     width, height = pyautogui.size()
-    widthto, heightto = width * .6, height/height
-   
+
+    # Target location
+    widthto, heightto = width * .6, height * .5
+
     print(f"Screen width: {width}")
     print(f"Screen height: {height}")
-   
+
     x, y = pyautogui.position()
 
-    max_step = 25
-    min_step = 3
+    # Brownian motion settings
+    max_step = 15
+    min_step = 2
 
-    max_noise = 0.5   # radians (~29 degrees)
-    min_noise = 0.05  # radians (~3 degrees)
+    max_noise = 8
+    min_noise = 1
+
+    # Velocity for smoother Brownian movement
+    vx, vy = 0, 0
 
     while True:
+
         dx = widthto - x
         dy = heightto - y
 
@@ -35,23 +41,37 @@ def random_walk_to():
         # Normalize distance (0 -> 1)
         factor = min(distance / max(width, height), 1)
 
-        # Adaptive step size
+        # Adaptive attraction strength
         step = min_step + (max_step - min_step) * factor
 
-        # Adaptive randomness
+        # Adaptive Brownian noise
         noise = min_noise + (max_noise - min_noise) * factor
 
-        # Direction to target
-        angle = math.atan2(dy, dx)
+        # Direction toward target
+        direction_x = dx / distance
+        direction_y = dy / distance
 
-        # Add random deviation
-        angle += random.gauss(0, noise)
+        # Attraction force
+        drift_x = direction_x * step
+        drift_y = direction_y * step
 
-        # Take a step
-        x += step * math.cos(angle)
-        y += step * math.sin(angle)
+        # Brownian random movement
+        brownian_x = random.gauss(0, noise)
+        brownian_y = random.gauss(0, noise)
 
-        # Keep inside screen
+        # Add forces to velocity
+        vx += drift_x + brownian_x
+        vy += drift_y + brownian_y
+
+        # Damping to prevent runaway speed
+        vx *= 0.75
+        vy *= 0.75
+
+        # Update position
+        x += vx
+        y += vy
+
+        # Keep inside screen boundaries
         x = max(0, min(width - 1, x))
         y = max(0, min(height - 1, y))
 
@@ -61,7 +81,7 @@ def random_walk_to():
             duration=random.uniform(0.05, 0.15)
         )
 
-        # Small timing variation
+        # Timing variation
         time.sleep(random.uniform(0.02, 0.08))
 
 
