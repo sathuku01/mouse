@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import time
 import pyautogui
 import randomwalk
+import subprocess
 
 def execute():
     points = []
@@ -18,10 +19,20 @@ def execute():
         on_move=on_move,  
         on_click=on_click
     ) as listener:
-        randomwalk.rand()
-        time.sleep(3)
+        randomwalk.random_walk_to()
+        # time.sleep(3)
         pyautogui.click()
         print("Move the mouse. Click to stop.")
+        # Reset GNOME's idle timer - CORRECT SYNTAX
+        subprocess.run([
+            "dbus-send",
+            "--session",
+            "--type=method_call",
+            "--dest=org.gnome.Mutter.IdleMonitor",
+            "/org/gnome/Mutter/IdleMonitor/Core",
+            "org.gnome.Mutter.IdleMonitor.Reset",
+            "uint32:0"
+        ], check=False, capture_output=True)
         listener.join()
 
     x = [p[0] for p in points]
@@ -29,19 +40,13 @@ def execute():
 
     plt.plot(x, y)
     plt.gca().invert_yaxis()  # Match screen coordinates
-    plt.xlabel("X") # x = [p[0] for p in points]
-    y = [p[1] for p in points]
-
-    plt.plot(x, y)
-    plt.gca().invert_yaxis()  # Match screen coordinates
     plt.xlabel("X")
     plt.ylabel("Y")
     plt.title("Mouse Path")
-    plt.show()
+    plt.show(block=False)
+    plt.pause(2)       # keep window open for 2 seconds
+    plt.close()
 
-    plt.ylabel("Y")
-    plt.title("Mouse Path")
-    plt.show()
-
-execute()
+if __name__ == "__main__":
+    execute()
 

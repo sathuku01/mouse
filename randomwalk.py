@@ -3,18 +3,29 @@ import random
 import time
 import pyautogui
 
+width, height = pyautogui.size()
+
+# Target location
+widthto, heightto = width * 0.6, height/height
+
+def check_at_target(x, y):
+
+    min_val = int(width * 0.65)
+    max_val = int(width * 0.75)
+
+    newwidth = random.randint(min_val, max_val)
+    return newwidth
+
 
 def random_walk_to():
-
-    width, height = pyautogui.size()
-
-    # Target location
-    widthto, heightto = width * .6, height * .5
-
-    print(f"Screen width: {width}")
-    print(f"Screen height: {height}")
+    global widthto
+    # print(f"Screen width: {width}")
+    # print(f"Screen height: {height}")
 
     x, y = pyautogui.position()
+
+    if x == widthto:
+        widthto = check_at_target(x, y)
 
     # Brownian motion settings
     max_step = 15

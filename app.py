@@ -2,18 +2,13 @@ import time
 import subprocess
 import re
 
-# import bear
+import bear
 
 
-# Target coordinates
-TARGET_X = 800
-TARGET_Y = 400
 
 # Idle threshold (3 minutes)
-IDLE_SECONDS = 180
+IDLE_SECONDS = 10
 triggered = False
-
-import subprocess
 
 def get_idle_time():
     result = subprocess.run(
@@ -28,16 +23,17 @@ def get_idle_time():
         text=True,
         check=True,
     )
-        
     # Output looks like: "(uint64 12345,)"
-    idle_ms = int(re.search(r"\d+", result.stdout).group())
+    idle_ms = int(re.search(r"uint64 (\d+)", result.stdout).group(1))
+
     return idle_ms / 1000
 
 while True:
     idle = get_idle_time()
 
+
     if idle >= IDLE_SECONDS and not triggered:
-        # pyautogui.moveTo(TARGET_X, TARGET_Y, duration=1)
+        bear.execute()
 
         print("Moved mouse after 3 minutes idle.")
         triggered = True
