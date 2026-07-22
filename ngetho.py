@@ -1,9 +1,8 @@
-import ctypes
 import time
-import pyautogui
 import subprocess
+import re
 
-import bear
+# import bear
 
 
 # Target coordinates
@@ -14,10 +13,25 @@ TARGET_Y = 400
 IDLE_SECONDS = 180
 triggered = False
 
+import subprocess
+
 def get_idle_time():
-    # xprintidle returns idle time in milliseconds
-    idle_ms = subprocess.check_output(["xprintidle"])
-    return int(idle_ms) / 1000
+    result = subprocess.run(
+        [
+            "gdbus", "call",
+            "--session",
+            "--dest", "org.gnome.Mutter.IdleMonitor",
+            "--object-path", "/org/gnome/Mutter/IdleMonitor/Core",
+            "--method", "org.gnome.Mutter.IdleMonitor.GetIdletime"
+        ], 
+        capture_output=True,
+        text=True,
+        check=True,
+    )
+        
+    # Output looks like: "(uint64 12345,)"
+    idle_ms = int(re.search(r"\d+", result.stdout).group())
+    return idle_ms / 1000
 
 while True:
     idle = get_idle_time()
