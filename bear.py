@@ -20,9 +20,9 @@ def execute():
         on_click=on_click
     ) as listener:
         randomwalk.random_walk_to()
-        # time.sleep(3)
         pyautogui.click()
-        print("Move the mouse. Click to stop.")
+        print("Clicked mouse after moving")
+
         # Reset GNOME's idle timer - CORRECT SYNTAX
         subprocess.run([
             "dbus-send",
@@ -38,6 +38,7 @@ def execute():
     x = [p[0] for p in points]
     y = [p[1] for p in points]
 
+    plt.figure()
     plt.plot(x, y)
     plt.gca().invert_yaxis()  # Match screen coordinates
     plt.xlabel("X")
